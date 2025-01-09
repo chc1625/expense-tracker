@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Expense Tracker</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { text-align: center; }
+        .form-container { margin-bottom: 30px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 8px; box-sizing: border-box; }
+        .expense-list { margin-top: 30px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        .stats-link { display: block; text-align: right; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <h1>个人账单管理</h1>
+    <a href="{{ url_for('statistics') }}" class="stats-link">查看统计</a>
+    
+    <div class="form-container">
+        <h2>添加新账单</h2>
+        <form action="{{ url_for('add_expense') }}" method="post">
+            <div class="form-group">
+                <label for="date">日期:</label>
+                <input type="date" id="date" name="date" required>
+            </div>
+            <div class="form-group">
+                <label for="category">类别:</label>
+                <select id="category" name="category" required>
+                    {% for key, value in categories.items() %}
+                    <option value="{{ key }}">{{ value }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="amount">金额:</label>
+                <input type="number" step="0.01" id="amount" name="amount" required>
+            </div>
+            <div class="form-group">
+                <label for="description">描述:</label>
+                <input type="text" id="description" name="description" required>
+            </div>
+            <button type="submit">添加账单</button>
+        </form>
+    </div>
+
+    <div class="expense-list">
+        <h2>近期账单</h2>
+        {% if expenses %}
+            {% for month, categories in expenses.items()|reverse %}
+            <h3>{{ month }}</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>日期</th>
+                        <th>类别</th>
+                        <th>金额</th>
+                        <th>描述</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category, items in categories.items() %}
+                        {% for item in items %}
+                        <tr>
+                            <td>{{ item.date }}</td>
+                            <td>{{ categories[category] }}</td>
+                            <td>{{ "%.2f"|format(item.amount) }}元</td>
+                            <td>{{ item.description }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endfor %}
+        {% else %}
+            <p>暂无账单记录</p>
+        {% endif %}
+    </div>
+</body>
+</html>
